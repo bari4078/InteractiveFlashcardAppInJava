@@ -1,0 +1,6 @@
+com\example\flashcard\controller\MainController.class
+com\example\flashcard\models\Flashcard.class
+module-info.class
+com\example\flashcard\models\Topic.class
+com\example\flashcard\models\Subject.class
+com\example\flashcard\MainApp.class
