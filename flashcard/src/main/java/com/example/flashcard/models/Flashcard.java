@@ -4,6 +4,8 @@ public class Flashcard {
     private String frontText = "Nothing to show";
     private String backText = "Nothing to show" ;
 
+    public Flashcard() {}
+
     public Flashcard(String frontText,String backText) {
         this.backText = backText;
         this.frontText = frontText;

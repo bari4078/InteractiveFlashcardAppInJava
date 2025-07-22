@@ -7,6 +7,10 @@ public class Subject {
     private String name;
     private List<Topic> topics;
 
+    public Subject() {
+        topics = new ArrayList<>();
+    }
+
     public Subject(String name) {
         this.name = name;
         this.topics = new ArrayList<>();

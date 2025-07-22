@@ -9,4 +9,5 @@ module com.example.flashcard {
     exports com.example.flashcard;
     exports com.example.flashcard.controller;
     opens com.example.flashcard.controller to javafx.fxml;
+    opens com.example.flashcard.models to com.fasterxml.jackson.databind;
 }

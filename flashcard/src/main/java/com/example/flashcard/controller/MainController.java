@@ -1,7 +1,8 @@
 package com.example.flashcard.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.example.flashcard.models.Flashcard;
-import com.example.flashcard.models.FlashcardData;
 import com.example.flashcard.models.Subject;
 import com.example.flashcard.models.Topic;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -19,9 +19,7 @@ import javafx.scene.layout.AnchorPane;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,18 +65,18 @@ public class MainController {
     private int currentFlashcardIndex = -1;
 
     public void initialize() {
-        Subject math = new Subject("Math");
-        math.addTopic(new Topic("Algebra"));
-        math.addTopic(new Topic("Geometry"));
-
-        Subject physics = new Subject("Physics");
-        physics.addTopic(new Topic("Mechanics"));
-        physics.addTopic(new Topic("Optics"));
-
-        subjects.clear();
-        subjects.add(math);
-        subjects.add(physics);
-
+//        Subject math = new Subject("Math");
+//        math.addTopic(new Topic("Algebra"));
+//        math.addTopic(new Topic("Geometry"));
+//
+//        Subject physics = new Subject("Physics");
+//        physics.addTopic(new Topic("Mechanics"));
+//        physics.addTopic(new Topic("Optics"));
+//
+//        subjects.clear();
+//        subjects.add(math);
+//        subjects.add(physics);
+        loadData();
         loadSidebarTree();
 
         addSubjectButton.setOnAction(e -> handleAddSubject());
@@ -163,6 +161,7 @@ public class MainController {
                 Subject newSubject = new Subject(name);
                 subjects.add(newSubject);
                 loadSidebarTree();
+                saveData();
             }
         });
     }
@@ -191,6 +190,7 @@ public class MainController {
 
         subjects.remove(subjectToDelete);
         loadSidebarTree();
+        saveData();
     }
 
 
@@ -219,6 +219,7 @@ public class MainController {
             if (!name.trim().isEmpty()) {
                 parentSubject.addTopic(new Topic(name));
                 loadSidebarTree();
+                saveData();
             }
         });
     }
@@ -249,6 +250,7 @@ public class MainController {
 
         parentSubject.removeTopic(topicToDelete);
         loadSidebarTree();
+        saveData();
     }
 
     private void handleAddFlashcard() {
@@ -286,6 +288,8 @@ public class MainController {
                 });
             }
         });
+
+        saveData();
     }
 
     private void handleDeleteFlashcard() {
@@ -310,6 +314,8 @@ public class MainController {
             }
             showFlashcards(currentTopic);
         }
+
+        saveData();
     }
 
     private void clearContentView() {
@@ -374,6 +380,7 @@ public class MainController {
         ContentArea.getChildren().add(mainContent);
 
         loadCurrentFlashcard(flashcardContainer, counterLabel);
+        saveData();
 
         prevButton.setOnAction(e -> {
             if (currentFlashcardIndex > 0) {
@@ -405,8 +412,8 @@ public class MainController {
             cardPane.setOnMouseClicked(e -> controller.flipCard());
             container.getChildren().add(cardPane);
 
-            // Update counter label
             counterLabel.setText((currentFlashcardIndex + 1) + " / " + currentTopic.getFlashcards().size());
+            saveData();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -422,7 +429,35 @@ public class MainController {
         Collections.shuffle(currentTopic.getFlashcards());
         currentFlashcardIndex = 0;
         showFlashcards(currentTopic);
+        saveData();
     }
+
+    private void saveData() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File("flashcard_data.json"), subjects);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Save Error", "Failed to save data: " + e.getMessage());
+        }
+    }
+
+    private void loadData() {
+        ObjectMapper mapper = new ObjectMapper();
+        File file = new File("flashcard_data.json");
+        if (file.exists()) {
+            try {
+                subjects = mapper.readValue(file, new TypeReference<List<Subject>>() {});
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert("Load Error", "Failed to load data: " + e.getMessage());
+                subjects = new ArrayList<>();
+            }
+        } else {
+            subjects = new ArrayList<>();
+        }
+    }
+
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
